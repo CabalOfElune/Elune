@@ -1,20 +1,33 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class MainMenu : MonoBehaviour
 {
     public SettingsManager settingsManager;
 
-    private string gameFilesPath = "";
+    private string tempGameFilesPath = "";
+    
+    public TMP_InputField gameFilesPathField;
+
+    public void Awake() {
+        FillFields();
+    }
+
+    public void FillFields() {
+        this.tempGameFilesPath = settingsManager.settings.GameFilesPath;
+        gameFilesPathField.text = tempGameFilesPath;
+        print($"Set path field to {gameFilesPathField.text}");
+    }
 
     public void OnGameFilesPathChanged(string path) {
         print($"Path: {path}");
-        gameFilesPath = path;
+        tempGameFilesPath = path;
     }
 
     public void SaveSettings() {
-        settingsManager.settings.gameFilesPath = gameFilesPath;
+        settingsManager.settings.GameFilesPath = this.tempGameFilesPath;
         settingsManager.Save();
     }
 }

@@ -1,10 +1,23 @@
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
+
 public class GameSettings {
-    public string gameFilesPath { get; set; }
+    // Serialized Fields
+    public string GameFilesPath { get; set; }
 
-    private GameSettings() {}
+    public GameSettings() {}
 
-    public static GameSettings Defaults() {
-        var settings = new GameSettings();
-        return settings;
+    public static GameSettings FromYaml(string yaml) {
+        var deserializer = new DeserializerBuilder()
+            .WithNamingConvention(CamelCaseNamingConvention.Instance)
+            .Build();
+        return deserializer.Deserialize<GameSettings>(yaml);
     }
+
+    public string ToYaml() {
+        var serializer = new SerializerBuilder()
+            .WithNamingConvention(CamelCaseNamingConvention.Instance)
+            .Build();
+        return serializer.Serialize(this);
+    } 
 }

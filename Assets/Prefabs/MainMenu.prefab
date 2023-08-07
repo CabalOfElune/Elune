@@ -455,6 +455,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   settingsManager: {fileID: 0}
+  gameFilesPathField: {fileID: 307259067126670496}
 --- !u!1 &5491560217842259930
 GameObject:
   m_ObjectHideFlags: 0
