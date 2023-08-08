@@ -38,6 +38,9 @@ namespace Elune.MPQ {
             
             // Read header contents
             MPQHeader header = ReadHeaderData(dataStream, headerPointer);
+
+            var yaml = new YamlDotNet.Serialization.Serializer().Serialize(header);
+            Debug.Log(yaml);
             
             // TODO: At this point, we can start reading the contents of the MPQ.
 

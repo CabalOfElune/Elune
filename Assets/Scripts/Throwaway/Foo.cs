@@ -14,10 +14,14 @@ namespace Elune.Throwaway {
         // Start is called before the first frame update
         void Start()
         {
+            // Only load MPQs if the path is valid
+            string wowDir = settingsManager.settings.GameFilesPath;
+            if(wowDir == null || wowDir == "") {
+                return;
+            }
+
             string myMPQ = "Data/base.MPQ";
             string path = Path.Combine(settingsManager.settings.GameFilesPath, myMPQ);
-            // string myMPQ = "Tests/Empty.MPQ";
-            // string path = Path.Combine(Application.dataPath, myMPQ);
             
             try {
                 MPQReader.LoadMPQ(path);
