@@ -12,25 +12,34 @@ namespace Elune.MPQ {
         const string ID_MPQ_USERDATA = "MPQ\x1B";
         const int HEADER_SEARCH_INTERVAL = 0x200;
 
+        /// <summary>
+        /// TODO: Document this when it is being used correctly
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <exception cref="MPQReadException"></exception>
         public static void LoadMPQ(string filePath) {
-            // Guard! Don't accept nonexistent files.
-            if(!File.Exists(filePath)) {
-                throw new FileNotFoundException(filePath);
+            FileStream dataStream; 
+            try {
+                dataStream = new(filePath, FileMode.Open);
+            }
+            catch (Exception ex) {
+                // None of these specific exceptions need to be handled in a specific way at this stage.
+                throw new MPQReadException("Error reading file", filePath, ex);
             }
 
-            FileStream dataStream = new(filePath, FileMode.Open);
-
-            int? headerPointer = FindHeaderPointer(dataStream);
-
-            if(headerPointer == null) {
+            int headerPointer;
+            try {
+                headerPointer = FindHeaderPointer(dataStream);  
+            } 
+            catch (SignatureNotFoundException ex) {
                 dataStream.Close();
-                return;
+                throw new MPQReadException("Failed to find header pointer", filePath, ex);
             }
             
             // Read header contents
             MPQHeader header = ReadHeaderData(dataStream, headerPointer);
-
-            // At this point, we can start reading the contents of the MPQ.
+            
+            // TODO: At this point, we can start reading the contents of the MPQ.
 
             dataStream.Close();
         }
@@ -59,8 +68,8 @@ namespace Elune.MPQ {
             dataStream.Seek(headerPointer.Value, SeekOrigin.Begin);
             byte[] headerData = new byte[MPQHeader.HEADER_SIZE_V1];
             dataStream.Read(headerData, 0, MPQHeader.HEADER_SIZE_V1);
-                // 0x00 Signature (4 bytes)
-                // 0x04 HeaderSize (4 bytes) 
+            // SKIP 0x00 Signature (4 bytes)
+            // SKIP 0x04 HeaderSize (4 bytes) 
             uint archiveSize = BitConverter.ToUInt32(headerData, 0x08); // 4 bytes
             ushort formatVersion = BitConverter.ToUInt16(headerData, 0x0C); // 2 bytes
             ushort blockSize = BitConverter.ToUInt16(headerData, 0x0E); // 2 bytes
@@ -69,7 +78,6 @@ namespace Elune.MPQ {
             uint hashTableSize = BitConverter.ToUInt32(headerData, 0x18); // 4 bytes
             uint blockTableSize = BitConverter.ToUInt32(headerData, 0x1C); // 4 bytes
 
-            // TODO: Handle errors if the FormatVersion is not 0
             MPQHeader header;
             if(formatVersion == 0) {
                 header = MPQHeader.CreateVersion1(
@@ -80,10 +88,37 @@ namespace Elune.MPQ {
                     hashTableSize, 
                     blockTableSize
                 );
+
                 return header;
             }
             
-            throw new UnexpectedFormatVersionException($"MPQ Format 0x{formatVersion:x2} not supported");
+            throw new UnexpectedFormatVersionException($"MPQ Format not supported", formatVersion);
+        }
+
+        [Serializable]
+        private class MPQReadException : Exception
+        {
+            public readonly string filePath;
+
+            public MPQReadException(string filePath)
+            {
+                this.filePath = filePath;
+            }
+
+            public MPQReadException(string message, string filePath) : base(message)
+            {
+                this.filePath = filePath;
+            }
+
+            public MPQReadException(string message, string filePath, Exception innerException) : base(message, innerException)
+            {
+                this.filePath = filePath;
+            }
+
+            protected MPQReadException(SerializationInfo info, StreamingContext context) : base(info, context)
+            {
+            }
         }
     }
+
 }

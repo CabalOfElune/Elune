@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using Elune.MPQ;
+using System;
 
 namespace Elune.Throwaway {
     
@@ -15,7 +16,15 @@ namespace Elune.Throwaway {
         {
             string myMPQ = "Data/base.MPQ";
             string path = Path.Combine(settingsManager.settings.GameFilesPath, myMPQ);
-            MPQReader.LoadMPQ(path);
+            // string myMPQ = "Tests/Empty.MPQ";
+            // string path = Path.Combine(Application.dataPath, myMPQ);
+            
+            try {
+                MPQReader.LoadMPQ(path);
+            }
+            catch (Exception ex) {
+                Debug.LogException(ex);
+            }
         }
     }
     
