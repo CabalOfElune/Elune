@@ -2,6 +2,7 @@ using UnityEngine;
 using System.IO;
 using System.Text;
 using System;
+using System.Runtime.Serialization;
 
 namespace Elune.MPQ {
     /// <summary>
@@ -34,7 +35,7 @@ namespace Elune.MPQ {
             dataStream.Close();
         }
 
-        public static int? FindHeaderPointer(FileStream dataStream) {
+        public static int FindHeaderPointer(FileStream dataStream) {
             int searchIndex = 0;
             while(dataStream.Length >= searchIndex*HEADER_SEARCH_INTERVAL + MPQHeader.HEADER_SIZE_V1) {
                 var headerPointer = searchIndex*HEADER_SEARCH_INTERVAL;
@@ -50,7 +51,7 @@ namespace Elune.MPQ {
                 }
                 searchIndex++;
             }
-            return null;
+            throw new SignatureNotFoundException("Could not MPQ header signature in file");
         }
 
         private static MPQHeader ReadHeaderData(FileStream dataStream, int? headerPointer)

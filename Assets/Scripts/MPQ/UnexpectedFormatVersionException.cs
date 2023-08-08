@@ -1,17 +1,17 @@
 using System;
 
+using System.Runtime.Serialization;
+
 namespace Elune.MPQ {
-    [System.Serializable]
+    [Serializable]
     public class UnexpectedFormatVersionException : Exception
     {
         public UnexpectedFormatVersionException() { }
         
         public UnexpectedFormatVersionException(string message) : base(message) { }
         
-        public UnexpectedFormatVersionException(string message, System.Exception inner) : base(message, inner) { }
+        public UnexpectedFormatVersionException(string message, Exception inner) : base(message, inner) { }
 
-        protected UnexpectedFormatVersionException(
-            System.Runtime.Serialization.SerializationInfo info,
-            System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+        protected UnexpectedFormatVersionException(SerializationInfo info, StreamingContext context) : base(info, context) { }
     }
 }
