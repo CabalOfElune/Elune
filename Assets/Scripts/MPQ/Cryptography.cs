@@ -7,23 +7,24 @@ namespace Elune.MPQ {
 /// </summary>
 public class Cryptography {
 
-    const uint DEFAULT_TABLE_SIZE = 0x500;
-
-    const uint HASH_TABLE_INDEX = 0x000;
-    const uint HASH_NAME_A = 0x100;
-    const uint HASH_NAME_B = 0x200;
-    const uint HASH_FILE_KEY = 0x300;
-    const uint HASH_SEED2_MIX = 0x400;
+    const uint SEED1_INITIAL = 0x7FED_7FED;
     const uint SEED2_INITIAL = 0xEEEE_EEEE;
 
-    private uint[] cryptTable;
+    const uint DEFAULT_TABLE_SIZE = 0x500;
+    private readonly uint[] cryptTable;
+
+    public enum HashType: uint {
+        TableIndex = 0x000,
+        NameA = 0x100,
+        NameB = 0x200,
+        FileKey = 0x300,
+        SeedMix = 0x400
+    }
 
     private bool isInitialized = false;
 
-    public Cryptography() : this(DEFAULT_TABLE_SIZE) {}
-
-    public Cryptography(uint tableSize) {
-        cryptTable = new uint[tableSize];
+    public Cryptography() {
+        this.cryptTable = new uint[0x500];
         Initialize();
     }
 
@@ -36,7 +37,7 @@ public class Cryptography {
         uint seed = 0x0010_0001;
 
         for(uint index1 = 0x0; index1 < 0x100; index1++) {
-            for( uint index2 = 0, i = 0; i < 0x5; i++, index2 += 0x100) {
+            for( uint index2 = index1, i = 0; i < 0x5; i++, index2 += 0x100) {
                 seed = (seed * 125 + 3) % 0x002A_AAAB;
                 uint temp1 = (seed & 0xFFFF) << 0x10;
 
@@ -64,7 +65,7 @@ public class Cryptography {
             uint value = BitConverter.ToUInt32(data, i);
             
             // Modify Seed2
-            seed2 += cryptTable[HASH_SEED2_MIX + (seed1 & 0xFF)];
+            seed2 += cryptTable[(int)(HashType.SeedMix + (seed1 & 0xFF))];
 
             // New Value
             value ^= seed1 + seed2;
@@ -93,7 +94,7 @@ public class Cryptography {
             uint valueTemp = value; // Store for updating seeds later
             
             // Modify Seed2
-            seed2 += cryptTable[HASH_SEED2_MIX + (seed1 & 0xFF)];
+            seed2 += cryptTable[(int)HashType.SeedMix + (seed1 & 0xFF)];
 
             // New value
             value ^= seed1 + seed2;
@@ -104,6 +105,26 @@ public class Cryptography {
             seed1 = ((~seed1 << 0x15) + 0x1111_1111) | (seed1 >> 0x0b);
             seed2 = valueTemp + seed2 + (seed2 << 5) + 3;
         }
+    }
+
+    // TODO: Compare against results from existing hashes
+    public uint HashString(string str, HashType hashType) {
+        uint seed1 = SEED1_INITIAL;
+        uint seed2 = SEED2_INITIAL;
+
+        str = str.ToUpper();
+
+        for(int i = 0; i < str.Length; i++) {
+            char ch = str[i]; 
+            if(ch == '\\') {
+                ch = '/';
+            }
+
+            seed1 = cryptTable[(int)hashType + ch] ^ (seed1 + seed2);
+            seed2 = ch + seed1 + seed2 + (seed2 << 5) + 3;
+        }
+
+        return seed1;
     }
 }
 
