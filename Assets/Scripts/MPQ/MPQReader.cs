@@ -2,7 +2,6 @@ using UnityEngine;
 using System.IO;
 using System.Text;
 using System;
-using System.Runtime.Serialization;
 
 namespace Elune.MPQ {
     /// <summary>
@@ -106,31 +105,6 @@ namespace Elune.MPQ {
             }
             
             throw new UnexpectedFormatVersionException($"MPQ Format not supported", formatVersion);
-        }
-
-        [Serializable]
-        private class MPQReadException : Exception
-        {
-            public readonly string filePath;
-
-            public MPQReadException(string filePath)
-            {
-                this.filePath = filePath;
-            }
-
-            public MPQReadException(string message, string filePath) : base(message)
-            {
-                this.filePath = filePath;
-            }
-
-            public MPQReadException(string message, string filePath, Exception innerException) : base(message, innerException)
-            {
-                this.filePath = filePath;
-            }
-
-            protected MPQReadException(SerializationInfo info, StreamingContext context) : base(info, context)
-            {
-            }
         }
     }
 
