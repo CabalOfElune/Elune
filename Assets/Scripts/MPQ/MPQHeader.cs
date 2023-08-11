@@ -93,7 +93,7 @@ namespace Elune.MPQ {
                 uint hashTableSize,
                 uint blockTableSize
             ) {
-            MPQHeader header = new() {
+            return new MPQHeader() {
                 ArchiveSize = archiveSize,
                 FormatVersion = MPQFormatVersion.FORMAT_1, 
                 BlockSize = blockSize, 
@@ -102,8 +102,6 @@ namespace Elune.MPQ {
                 HashTableSize = hashTableSize,
                 BlockTableSize = blockTableSize,
             };
-
-            return header;
         }
     }
 }

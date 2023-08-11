@@ -17,7 +17,7 @@ namespace Elune.MPQ {
         /// </summary>
         /// <param name="filePath"></param>
         /// <exception cref="MPQReadException"></exception>
-        public static void LoadMPQ(string filePath) {
+        public static MPQArchive LoadMPQ(string filePath) {
             FileStream dataStream; 
             try {
                 dataStream = new(filePath, FileMode.Open);
@@ -40,13 +40,23 @@ namespace Elune.MPQ {
             MPQHeader header = ReadHeaderData(dataStream, headerPointer);
 
             var yaml = new YamlDotNet.Serialization.Serializer().Serialize(header);
-            Debug.Log(yaml);
+            Debug.Log(yaml); // TODO: Remove this
             
             // TODO: At this point, we can start reading the contents of the MPQ.
+            MPQArchive archive = null;
+
 
             dataStream.Close();
+
+            return archive;
         }
 
+        /// <summary>
+        /// Locates the address of the header within the given file.
+        /// </summary>
+        /// <param name="dataStream"></param>
+        /// <returns></returns>
+        /// <exception cref="SignatureNotFoundException"></exception>
         public static int FindHeaderPointer(FileStream dataStream) {
             int searchIndex = 0;
             while(dataStream.Length >= searchIndex*HEADER_SEARCH_INTERVAL + MPQHeader.HEADER_SIZE_V1) {
@@ -66,9 +76,9 @@ namespace Elune.MPQ {
             throw new SignatureNotFoundException("Could not MPQ header signature in file");
         }
 
-        private static MPQHeader ReadHeaderData(FileStream dataStream, int? headerPointer)
+        private static MPQHeader ReadHeaderData(FileStream dataStream, int headerPointer)
         {
-            dataStream.Seek(headerPointer.Value, SeekOrigin.Begin);
+            dataStream.Seek(headerPointer, SeekOrigin.Begin);
             byte[] headerData = new byte[MPQHeader.HEADER_SIZE_V1];
             dataStream.Read(headerData, 0, MPQHeader.HEADER_SIZE_V1);
             // SKIP 0x00 Signature (4 bytes)
