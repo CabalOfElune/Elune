@@ -30,12 +30,12 @@ public class Foo : MonoBehaviour
         try {
             var serializer = new YamlDotNet.Serialization.SerializerBuilder().Build();
             MPQArchive archive = MPQReader.LoadMPQ(path);
-            var yaml = serializer.Serialize(archive.header);
+            var yaml = serializer.Serialize(archive.Header);
             Debug.Log(yaml);
-            yaml = serializer.Serialize(archive.hashTable);
+            yaml = serializer.Serialize(archive.HashTable);
             Debug.Log(yaml);
 
-            yaml = serializer.Serialize(archive.hashTable.Get(0));
+            yaml = serializer.Serialize(archive.HashTable.Get(0));
             Debug.Log(yaml);
 
             var file = archive.FindFile(crypto, "foo/example.txt");

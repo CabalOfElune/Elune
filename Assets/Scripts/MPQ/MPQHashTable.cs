@@ -67,7 +67,6 @@ public class MPQHashTable {
         uint hash_name2 = crypto.HashString(name, Cryptography.HashType.NameB);
 
         int startIndex = (int)(hash_index % entries.Length);
-        Debug.Log($"Starting at: {startIndex:X4} / {entries.Length:X4}");
         for(int i = startIndex; ; ) {
             MPQHashEntry testEntry = entries[i];
 

@@ -60,10 +60,21 @@ public class TestMPQReader
         string path = Path.Combine(Application.dataPath, "Tests/Empty.MPQ");
         
         MPQArchive archive = MPQReader.LoadMPQ(path);
-        Assert.Zero(archive.header.HashTableSize,
+        Assert.Zero(archive.Header.HashTableSize,
             "Empty.MPQ should have a HashTableSize of 0");
-        Assert.IsNull(archive.hashTable, 
-            "An MPQ archive with HashTableSize 0 should have a hashTable of null");
-    }    
+        Assert.IsNull(archive.HashTable, 
+            "Empty.MPQ should have null HashTable");
+    }
+
+    // [Test]
+    // public void LoadMPQ_EmptyBlockTable() {
+    //     string path = Path.Combine(Application.dataPath, "Tests/Empty.MPQ");
+    //     MPQArchive archive = MPQReader.LoadMPQ(path);
+
+    //     Assert.Zero(archive.Header.BlockTableSize,
+    //         "Empty.MPQ should have a BlockTableSize of 0");
+    //     Assert.IsNull(archive.BlockTable,
+    //         "Empty.MPQ should have null HashTable.");
+    // }
     
 }

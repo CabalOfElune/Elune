@@ -33,24 +33,13 @@ public class TestMPQArchive {
     }
 
     [Test]
-    public void FindFile_Success1() {
-        string path = Path.Combine(Application.dataPath, "Tests/FileSearch.MPQ");
+    [TestCase("Tests/FileSearch.MPQ", "foo/example.txt", "Hello World!")]
+    [TestCase("Tests/FileSearch.MPQ", "bar/example2.txt", "Goodnight Moon!")]
+    public void FindFile_Success(string archivePath, string requestedFile, string expected) {
+        string path = Path.Combine(Application.dataPath, archivePath);
         
         MPQArchive archive = MPQReader.LoadMPQ(path);
-        byte[] actual = archive.FindFile(crypto, "foo/example.txt");
-        byte[] expected = Encoding.ASCII.GetBytes("Hello World!");
-
-        Assert.AreEqual(expected, actual, 
-            "Must be able to read the contents of files within an archive");
-    }
-
-    [Test]
-    public void FindFile_Success2() {
-        string path = Path.Combine(Application.dataPath, "Tests/FileSearch.MPQ");
-        
-        MPQArchive archive = MPQReader.LoadMPQ(path);
-        byte[] actual = archive.FindFile(crypto, "bar/example2.txt");
-        byte[] expected = Encoding.ASCII.GetBytes("Goodnight Moon!");
+        byte[] actual = archive.FindFile(crypto, requestedFile);
 
         Assert.AreEqual(expected, actual, 
             "Must be able to read the contents of files within an archive");

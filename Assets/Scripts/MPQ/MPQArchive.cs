@@ -5,24 +5,24 @@ using System.IO;
 
 namespace Elune.MPQ {
     public class MPQArchive {
-        public MPQHeader header;
-        public MPQHashTable hashTable;
+        public MPQHeader Header {get;}
+        public MPQHashTable HashTable {get;}
 
         private MPQArchive() {}
 
         public MPQArchive(MPQHeader header, MPQHashTable hashTable) {
-            this.header = header;
-            this.hashTable = hashTable;
+            Header = header;
+            HashTable = hashTable;
         }
 
         public byte[] FindFile(Cryptography crypto, string path) {
-            if (hashTable == null) {
+            if (HashTable == null) {
                 throw new NoHashTableException("Cannot find a file without a hash table.");
             }
             
             MPQHashEntry fileHandle;
             try {
-                fileHandle = hashTable.FindEntry(crypto, path);
+                fileHandle = HashTable.FindEntry(crypto, path);
             }
             catch(FileNotFoundException ex) {
                 throw ex;
