@@ -42,7 +42,7 @@ namespace Elune.MPQ {
         private MPQHashEntry() {}
 
         /// <summary>
-        /// Creates a hash representation with the given data.
+        /// Construct a hash entry representation with the given data.
         /// </summary>
         /// <param name="name1"></param>
         /// <param name="name2"></param>
@@ -50,20 +50,18 @@ namespace Elune.MPQ {
         /// <param name="platform"></param>
         /// <param name="blockindex"></param>
         /// <returns></returns>
-        public static MPQHashEntry CreateHash(
+        public MPQHashEntry(
             uint name1,
             uint name2,
             ushort locale,
             ushort platform,
             uint blockindex
         ) {
-            return new MPQHashEntry {
-                Name1 = name1,
-                Name2 = name2,
-                Locale = locale,
-                Platform = platform,
-                BlockIndex = blockindex
-            };
+            Name1 = name1;
+            Name2 = name2;
+            Locale = locale;
+            Platform = platform;
+            BlockIndex = blockindex;
         }
     }
 }

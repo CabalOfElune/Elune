@@ -25,10 +25,10 @@ public class Cryptography {
 
     public Cryptography() {
         this.cryptTable = new uint[0x500];
-        Initialize();
+        InitializeCryptTable();
     }
 
-    private void Initialize() {
+    private void InitializeCryptTable() {
         // Only initialize once.
         if(isInitialized) {
             return;
@@ -59,23 +59,21 @@ public class Cryptography {
             throw new ArgumentException("Tried to encrypt a block with length not divisible by 4 bytes.", "data");
         }
 
-        var seed2 = SEED2_INITIAL;
-        
+        uint seed2 = SEED2_INITIAL;
+
         for(int i = 0; i < data.Length; i += sizeof(uint)) {
-            uint value = BitConverter.ToUInt32(data, i);
-            
             // Modify Seed2
             seed2 += cryptTable[(int)(HashType.SeedMix + (seed1 & 0xFF))];
 
             // New Value
-            value ^= seed1 + seed2;
-            var bytes = BitConverter.GetBytes(value);
+            uint value = BitConverter.ToUInt32(data, i);
+            uint temp = value ^ (seed1 + seed2);
+            byte[] bytes = BitConverter.GetBytes(temp);
             Array.Copy(bytes, 0, data, i, bytes.Length);
 
             // Keys for next operation
             seed1 = ((~seed1 << 0x15) + 0x1111_1111) | (seed1 >> 0x0b);
             seed2 = value + seed2 + (seed2 << 5) + 3;
-
         }
     }
 
@@ -90,24 +88,21 @@ public class Cryptography {
         var seed2 = SEED2_INITIAL;
 
         for(int i = 0; i < data.Length; i += sizeof(uint)) {
-            uint value = BitConverter.ToUInt32(data, i);
-            uint valueTemp = value; // Store for updating seeds later
-            
             // Modify Seed2
-            seed2 += cryptTable[(int)HashType.SeedMix + (seed1 & 0xFF)];
+            seed2 += cryptTable[(int)(HashType.SeedMix + (seed1 & 0xFF))];
 
             // New value
+            uint value = BitConverter.ToUInt32(data, i);
             value ^= seed1 + seed2;
             var bytes = BitConverter.GetBytes(value);
             Array.Copy(bytes, 0, data, i, bytes.Length);
 
             // Keys for next operation
             seed1 = ((~seed1 << 0x15) + 0x1111_1111) | (seed1 >> 0x0b);
-            seed2 = valueTemp + seed2 + (seed2 << 5) + 3;
+            seed2 = value + seed2 + (seed2 << 5) + 3;
         }
     }
 
-    // TODO: Compare against results from existing hashes
     public uint HashString(string str, HashType hashType) {
         uint seed1 = SEED1_INITIAL;
         uint seed2 = SEED2_INITIAL;
@@ -116,8 +111,8 @@ public class Cryptography {
 
         for(int i = 0; i < str.Length; i++) {
             char ch = str[i]; 
-            if(ch == '\\') {
-                ch = '/';
+            if(ch == '/') {
+                ch = '\\';
             }
 
             seed1 = cryptTable[(int)hashType + ch] ^ (seed1 + seed2);
